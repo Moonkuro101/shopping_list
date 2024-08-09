@@ -1,3 +1,6 @@
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shopping_list/data/categories.dart';
 import 'package:shopping_list/models/category.dart';
@@ -18,17 +21,49 @@ class _NewItemScreenState extends State<NewItemScreen> {
   var _enterQuatity = 1;
   var _selectedCategory = categories[Categories.vegetables]!;
 
-  void _saveItem() {
+  void _saveItem() async {
     if (_formkey.currentState!.validate()) {
       _formkey.currentState!.save();
-      Navigator.of(context).pop(
-        GroceryItem(
-          id: DateTime.now().toString(),
-          name: _enterName,
-          quantity: _enterQuatity,
-          category: _selectedCategory,
+
+      final url = Uri.https(
+          'shopoinglist-cd747-default-rtdb.asia-southeast1.firebasedatabase.app',
+          'shoppling-list.json');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(
+          {
+            'name': _enterName,
+            'quantity': _enterQuatity,
+            'category': _selectedCategory.title,
+          },
         ),
       );
+      final Map<String, dynamic> responsedata = json.decode(response.body);
+       
+      // print(response.body);
+      // print(response.statusCode);
+
+      if (!context.mounted) {
+        return;
+      }
+
+      Navigator.of(context).pop(
+        GroceryItem(
+          id: responsedata['name'],
+          name: _enterName,
+          quantity: _enterQuatity,
+          category: _selectedCategory
+        )
+      );
+      // Navigator.of(context).pop(
+      //   GroceryItem(
+      //     id: DateTime.now().toString(),
+      //     name: _enterName,
+      //     quantity: _enterQuatity,
+      //     category: _selectedCategory,
+      //   ),
+      // );
     }
   }
 
@@ -91,30 +126,32 @@ class _NewItemScreenState extends State<NewItemScreen> {
                   ),
                   Expanded(
                     child: DropdownButtonFormField(
-                        value: _selectedCategory,
-                        items: [
-                          for (final category in categories.entries)
-                            DropdownMenuItem(
-                                value: category.value,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 16,
-                                      height: 16,
-                                      color: category.value.color,
-                                    ),
-                                    const SizedBox(
-                                      width: 6,
-                                    ),
-                                    Text(category.value.title),
-                                  ],
-                                ))
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedCategory = value!;
-                          });
-                        }),
+                      value: _selectedCategory,
+                      items: [
+                        for (final category in categories.entries)
+                          DropdownMenuItem(
+                            value: category.value,
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 16,
+                                  height: 16,
+                                  color: category.value.color,
+                                ),
+                                const SizedBox(
+                                  width: 6,
+                                ),
+                                Text(category.value.title),
+                              ],
+                            ),
+                          )
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedCategory = value!;
+                        });
+                      },
+                    ),
                   ),
                 ],
               ),
