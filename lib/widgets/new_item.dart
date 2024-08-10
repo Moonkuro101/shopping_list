@@ -20,6 +20,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
   var _enterName = '';
   var _enterQuatity = 1;
   var _selectedCategory = categories[Categories.vegetables]!;
+  var isSending = false;
 
   void _saveItem() async {
     if (_formkey.currentState!.validate()) {
@@ -40,7 +41,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
         ),
       );
       final Map<String, dynamic> responsedata = json.decode(response.body);
-       
+
       // print(response.body);
       // print(response.statusCode);
 
@@ -48,14 +49,11 @@ class _NewItemScreenState extends State<NewItemScreen> {
         return;
       }
 
-      Navigator.of(context).pop(
-        GroceryItem(
+      Navigator.of(context).pop(GroceryItem(
           id: responsedata['name'],
           name: _enterName,
           quantity: _enterQuatity,
-          category: _selectedCategory
-        )
-      );
+          category: _selectedCategory));
       // Navigator.of(context).pop(
       //   GroceryItem(
       //     id: DateTime.now().toString(),
@@ -162,14 +160,22 @@ class _NewItemScreenState extends State<NewItemScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
-                      _formkey.currentState!.reset();
-                    },
+                    onPressed: isSending
+                        ? null
+                        : () {
+                            _formkey.currentState!.reset();
+                          },
                     child: const Text('Reset'),
                   ),
                   ElevatedButton(
-                    onPressed: _saveItem,
-                    child: const Text('Add Item'),
+                    onPressed: isSending ? null : _saveItem,
+                    child: isSending
+                        ? const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(),
+                          )
+                        : const Text('Add Item'),
                   ),
                 ],
               ),
