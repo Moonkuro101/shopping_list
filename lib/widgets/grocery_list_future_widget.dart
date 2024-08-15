@@ -27,7 +27,7 @@ class _GroceryListState extends State<GroceryList_old> {
 
   Future<List<GroceryItem>> _loadItems() async {
     final url = Uri.https(
-        'shopoinglist-cd747-default-rtdb.asia-southeast1.firebasedatabase.app',
+        'firebaseUrl',
         'shoppling-list.json');
 
     final response = await http.get(url);
