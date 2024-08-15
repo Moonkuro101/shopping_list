@@ -27,7 +27,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
       _formkey.currentState!.save();
 
       final url = Uri.https(
-          'shopoinglist-cd747-default-rtdb.asia-southeast1.firebasedatabase.app',
+          'firebaseUrl',
           'shoppling-list.json');
       final response = await http.post(
         url,
